@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}Log in · {{ settings.app_name }}{% endblock %}
+{% block wrapclass %}narrow{% endblock %}
+{% block content %}
+<h1>Log in</h1>
+{% include "_errors.html" %}
+<form class="card stack" method="post" action="/login">
+  <input type="hidden" name="csrf" value="{{ csrf }}">
+  <input type="hidden" name="next" value="{{ next }}">
+  <label>Email<input type="email" name="email" required value="{{ email or '' }}" autocomplete="email"></label>
+  <label>Password<input type="password" name="password" required autocomplete="current-password"></label>
+  <button type="submit">Log in</button>
+</form>
+<p><a href="/forgot">Forgot your password?</a>{% if settings.signups_open %} · <a href="/signup">Create an account</a>{% endif %}</p>
+{% endblock %}

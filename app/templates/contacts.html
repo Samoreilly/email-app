@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %}Contacts · {{ settings.app_name }}{% endblock %}
+{% block content %}
+<h1>Contacts</h1>
+<p class="muted">Each contact has a private relay address. Gmail sends your replies there, and we pass them on from your domain. To start a new conversation from the Gmail app, email the contact's relay address (save it in your phone's contacts).</p>
+
+{% if addresses %}
+<form class="card stack" method="post" action="/contacts">
+  <input type="hidden" name="csrf" value="{{ csrf }}">
+  <strong>Add a contact</strong>
+  <div class="row" style="align-items:end">
+    <label style="flex:2;min-width:200px">Their email<input type="email" name="email" required placeholder="client@example.com"></label>
+    <label style="flex:1;min-width:140px">Name<input type="text" name="name"></label>
+    <label style="flex:1;min-width:180px">Send as<select name="address_id">{% for a in addresses %}<option value="{{ a.id }}">{{ a.email }}</option>{% endfor %}</select></label>
+    <button type="submit">Add</button>
+  </div>
+</form>
+{% else %}
+<div class="card">Create an address on your <a href="/domains/new">domain</a> first.</div>
+{% endif %}
+
+<form class="row" method="get" action="/contacts" style="margin:1rem 0">
+  <input type="search" name="q" value="{{ q }}" placeholder="Search contacts" style="max-width:320px;margin:0">
+  <button class="secondary small">Search</button>
+</form>
+
+<div class="table-wrap">
+<table>
+  <tr><th>Contact</th><th>Relay address (email this from Gmail)</th><th class="hide-sm">Via</th><th></th></tr>
+  {% for c in contacts %}
+  <tr>
+    <td>{{ c.name or '' }}<br><span class="hint">{{ c.email }}</span>{% if c.blocked %} <span class="pill bad">blocked</span>{% endif %}</td>
+    <td><code>{{ c.reverse_alias }}</code> <button class="copy secondary small" data-copy="{{ c.reverse_alias }}">Copy</button>
+      <a class="hint" href="mailto:{{ c.reverse_alias }}">Open in mail app</a></td>
+    <td class="hide-sm hint">{{ c.address.email }}</td>
+    <td><form method="post" action="/contacts/{{ c.id }}" class="row">
+      <input type="hidden" name="csrf" value="{{ csrf }}">
+      <a class="hint" href="/compose?to={{ c.email|urlencode }}">Compose</a>
+      {% if c.blocked %}<button class="linklike small" name="action" value="unblock">Unblock</button>{% else %}<button class="linklike small" name="action" value="block">Block</button>{% endif %}
+      <button class="linklike small bad" name="action" value="delete" onclick="return confirm('Delete this contact? Their relay address stops working.')">Delete</button>
+    </form></td>
+  </tr>
+  {% else %}<tr><td colspan="4" class="muted">No contacts yet. They're created automatically when someone emails you.</td></tr>{% endfor %}
+</table>
+</div>
+{% endblock %}

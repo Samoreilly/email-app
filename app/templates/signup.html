@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}Start your free trial · {{ settings.app_name }}{% endblock %}
+{% block wrapclass %}narrow{% endblock %}
+{% block content %}
+<h1>Start your free trial</h1>
+<p class="muted">{{ settings.trial_days }} days free, no card needed. Then {{ settings.price_display }} per domain per {{ settings.price_interval_display }}.</p>
+{% include "_errors.html" %}
+<form class="card stack" method="post" action="/signup">
+  <input type="hidden" name="csrf" value="{{ csrf }}">
+  <label>Your name <span class="hint">(shown on emails you send, which you can change per address)</span><input type="text" name="name" value="{{ name or '' }}" autocomplete="name"></label>
+  <label>Your Gmail address <span class="hint">(where your domain's mail is delivered, and the only account allowed to send as your domain)</span>
+    <input type="email" name="email" required value="{{ email or '' }}" autocomplete="email" placeholder="you@gmail.com"></label>
+  <label>Password <span class="hint">(at least 10 characters)</span><input type="password" name="password" required minlength="10" autocomplete="new-password"></label>
+  <label class="check"><input type="checkbox" name="terms" value="1" required> <span>I agree to the <a href="/terms" target="_blank">terms</a> and <a href="/privacy" target="_blank">privacy policy</a>, and I won't use the service for bulk or unsolicited email.</span></label>
+  <button type="submit">Create account</button>
+</form>
+<p>Already have an account? <a href="/login">Log in</a></p>
+{% endblock %}

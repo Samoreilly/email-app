@@ -1,0 +1,8 @@
+{% extends "base.html" %}
+{% block title %}{{ title }} · {{ settings.app_name }}{% endblock %}
+{% block wrapclass %}narrow{% endblock %}
+{% block content %}
+<h1>{{ title }}</h1>
+<p>{{ body }}</p>
+<p><a href="{{ '/dashboard' if user else '/' }}">Continue</a></p>
+{% endblock %}

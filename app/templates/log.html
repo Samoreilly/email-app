@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}Delivery log · {{ settings.app_name }}{% endblock %}
+{% block content %}
+<h1>Delivery log</h1>
+<p class="muted">Metadata only (we never store message contents). Kept for 30 days.</p>
+<div class="table-wrap">
+<table>
+  <tr><th>When (UTC)</th><th>Direction</th><th>Your address</th><th>Contact</th><th>Status</th></tr>
+  {% for r in rows %}
+  <tr>
+    <td class="hint">{{ r.created_at.strftime('%d %b %H:%M') }}</td>
+    <td>{{ {'in':'↓ Incoming','out':'↑ Reply','compose':'↑ New email'}[r.direction] }}</td>
+    <td>{{ r.address }}</td>
+    <td>{{ r.contact }}</td>
+    <td><span class="pill {{ 'ok' if r.status == 'delivered' else ('bad' if r.status in ('rejected','bounced','complaint') else '') }}">{{ r.status }}</span>{% if r.detail %}<br><span class="hint">{{ r.detail }}</span>{% endif %}</td>
+  </tr>
+  {% else %}<tr><td colspan="5" class="muted">Nothing yet.</td></tr>{% endfor %}
+</table>
+</div>
+{% endblock %}

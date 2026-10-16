@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}Billing · {{ settings.app_name }}{% endblock %}
+{% block wrapclass %}narrow{% endblock %}
+{% block content %}
+<h1>Billing</h1>
+<div class="card">
+  {% if user.subscribed %}
+    <p><span class="pill ok">{{ user.subscription_status|replace('_',' ')|title }}</span></p>
+    {% if user.subscription_status == 'past_due' %}<p class="bad">Your last payment failed. Update your card to avoid interruption.</p>{% endif %}
+    {% if user.subscription_period_end %}<p>{{ 'Trial ends' if user.subscription_status == 'trialing' else 'Renews' }} on {{ user.subscription_period_end.strftime('%d %B %Y') }}.</p>{% endif %}
+    <p>{{ quantity }} domain{{ 's' if quantity != 1 }} × {{ settings.price_display }}/{{ settings.price_interval_display }}.</p>
+    <form method="post" action="/billing/portal"><input type="hidden" name="csrf" value="{{ csrf }}"><button>Manage card, invoices or cancel</button></form>
+  {% else %}
+    {% if user.in_trial %}
+      <p>You're on the free trial: <strong>{{ user.trial_days_left }} days left</strong>. Subscribe now and you won't be charged until the trial ends.</p>
+    {% else %}
+      <p>Your trial has ended{% if user.subscription_status %} and your subscription is {{ user.subscription_status|replace('_',' ') }}{% endif %}. Replies are paused until you subscribe.</p>
+    {% endif %}
+    <p class="price">{{ settings.price_display }}<span class="muted" style="font-size:1rem;font-weight:400"> / domain / {{ settings.price_interval_display }}</span></p>
+    <p class="hint">{{ quantity }} domain{{ 's' if quantity != 1 }} → billed for {{ quantity }}. Adding or removing domains later adjusts your bill pro-rata.</p>
+    {% if settings.billing_enabled %}
+      <form method="post" action="/billing/checkout"><input type="hidden" name="csrf" value="{{ csrf }}"><button>Subscribe with card</button></form>
+      <p class="hint" style="margin-top:.75rem">Secure checkout by Stripe. Cancel any time.</p>
+    {% else %}
+      <p class="warn">Payments are being set up. You'll be able to subscribe here shortly.</p>
+    {% endif %}
+    {% if user.stripe_customer_id and settings.billing_enabled %}
+      <form method="post" action="/billing/portal" style="margin-top:.5rem"><input type="hidden" name="csrf" value="{{ csrf }}"><button class="secondary small">Past invoices</button></form>
+    {% endif %}
+  {% endif %}
+</div>
+{% endblock %}

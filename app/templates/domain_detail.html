@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+{% block title %}{{ domain.name }} · {{ settings.app_name }}{% endblock %}
+{% block content %}
+<div class="row spread">
+  <h1 style="margin:0">{{ domain.name }}</h1>
+  <div class="row">
+    <span class="pill {{ 'ok' if domain.verified_at and domain.mx_ok }}">Receiving {{ 'on' if domain.verified_at and domain.mx_ok else 'off' }}</span>
+    <span class="pill {{ 'ok' if domain.sending_ready }}">Sending {{ 'on' if domain.sending_ready else 'off' }}</span>
+  </div>
+</div>
+
+<h2>1. DNS records</h2>
+<p>Add these at your DNS provider (where your domain's nameservers point). Most panels want just the <em>Name</em> part; some want the full name. {% if domain.last_checked_at %}<span class="hint">Last checked {{ domain.last_checked_at.strftime('%d %b %H:%M') }} UTC.</span>{% endif %}</p>
+
+{% for rec in records %}
+  {% set res = results[rec.key] if results else None %}
+  {% set stored = {'verify': domain.verified_at is not none, 'mx': domain.mx_ok, 'spf': domain.spf_ok, 'dkim': domain.dkim_ok, 'dmarc': domain.dmarc_ok}[rec.key] %}
+  {% set ok = res.ok if res else stored %}
+  <div class="record">
+    <div class="row spread"><strong>{{ rec.title }}{% if not rec.required %} <span class="hint">(recommended)</span>{% endif %}</strong>
+      <span class="pill {{ 'ok' if ok else ('bad' if res else '') }}">{{ '✓ Found' if ok else ('✗ Not yet' if res or domain.last_checked_at else 'Not checked') }}</span></div>
+    <p class="hint" style="margin:.25rem 0 0">{{ rec.help }}</p>
+    <dl class="kv">
+      <dt>Type</dt><dd>{{ rec.type }}</dd><span></span>
+      <dt>Name</dt><dd>{{ rec.host }}</dd><button class="copy secondary small" data-copy="{{ rec.host }}">Copy</button>
+      {% if rec.priority is not none %}<dt>Priority</dt><dd>{{ rec.priority }}</dd><span></span>{% endif %}
+      <dt>Value</dt><dd>{{ rec.value }}</dd><button class="copy secondary small" data-copy="{{ rec.value }}">Copy</button>
+    </dl>
+    {% if res and not res.ok %}<p class="warn" style="margin:.5rem 0 0">{{ res.message }}{% if res.found %} <span class="hint">Found: {{ res.found|join(' | ')|truncate(200) }}</span>{% endif %}</p>{% endif %}
+  </div>
+{% endfor %}
+<form method="post" action="/domains/{{ domain.id }}/check" class="row">
+  <input type="hidden" name="csrf" value="{{ csrf }}">
+  <button type="submit">Check DNS now</button>
+  <span class="hint">DNS changes usually show up within minutes, but some providers take a few hours.</span>
+</form>
+
+<details class="card" style="margin-top:1rem">
+  <summary>Domain on Cloudflare? Set it up in one click</summary>
+  <p style="margin-top:.75rem">Create an API token at <em>Cloudflare dashboard → My Profile → API Tokens → Create Token → "Edit zone DNS"</em> template, limited to {{ domain.name }}. We use it once and don't store it.</p>
+  <p class="hint">If you use Cloudflare Email Routing, turn it off first (Email → Email Routing → Settings → Disable), because it locks the MX records.</p>
+  <form class="stack" method="post" action="/domains/{{ domain.id }}/cloudflare">
+    <input type="hidden" name="csrf" value="{{ csrf }}">
+    <label>API token<input type="password" name="token" required autocomplete="off"></label>
+    <label class="check"><input type="checkbox" name="replace_mx" value="1" checked> <span>Replace existing MX records (needed to switch from ImprovMX or Email Routing)</span></label>
+    <button type="submit">Add records on Cloudflare</button>
+  </form>
+</details>
+
+<h2 id="addresses">2. Addresses</h2>
+<p class="muted">Mail to these addresses goes to {{ user.email }}. The display name is what people see when you reply.</p>
+{% for a in domain.addresses %}
+  <form class="card row" method="post" action="/addresses/{{ a.id }}">
+    <input type="hidden" name="csrf" value="{{ csrf }}">
+    <strong style="min-width:220px">{{ a.email }}</strong>
+    <input type="text" name="display_name" value="{{ a.display_name }}" placeholder="Display name" style="max-width:240px;margin:0">
+    <label class="check"><input type="checkbox" name="enabled" value="1" {{ 'checked' if a.enabled }}> Enabled</label>
+    <button class="small" name="action" value="save">Save</button>
+    <button class="small danger" name="action" value="delete" formnovalidate onclick="return confirm('Delete {{ a.email }}? Mail to it will bounce.')">Delete</button>
+  </form>
+{% else %}<p>No addresses yet.</p>{% endfor %}
+<form class="card stack" method="post" action="/domains/{{ domain.id }}/addresses">
+  <input type="hidden" name="csrf" value="{{ csrf }}">
+  <div class="row" style="align-items:end">
+    <label style="flex:1;min-width:160px">New address<div class="row" style="flex-wrap:nowrap"><input type="text" name="local_part" required placeholder="hello" autocapitalize="off"><span class="muted">@{{ domain.name }}</span></div></label>
+    <label style="flex:1;min-width:160px">Display name<input type="text" name="display_name" value="{{ user.name }}"></label>
+    <button type="submit">Add</button>
+  </div>
+</form>
+<form class="card" method="post" action="/domains/{{ domain.id }}/settings">
+  <input type="hidden" name="csrf" value="{{ csrf }}">
+  <label class="check"><input type="checkbox" name="catch_all" value="1" {{ 'checked' if domain.catch_all }} onchange="this.form.submit()"> <span><strong>Catch-all</strong>: forward mail sent to <em>any</em> address @{{ domain.name }}. <span class="hint">Convenient, but it attracts more spam.</span></span></label>
+  <noscript><button class="small">Save</button></noscript>
+</form>
+
+<h2>3. Test it</h2>
+<ol>
+  <li>From a different email account (not {{ user.email }}), send a message to one of your addresses.</li>
+  <li>It arrives in Gmail from "Name - sender at their domain".</li>
+  <li>Hit Reply. The other account receives it from your domain.</li>
+</ol>
+
+<details class="card" style="margin-top:2rem">
+  <summary class="bad">Remove this domain</summary>
+  <form class="stack" method="post" action="/domains/{{ domain.id }}/delete" style="margin-top:.75rem">
+    <input type="hidden" name="csrf" value="{{ csrf }}">
+    <p>This deletes all addresses and contacts for {{ domain.name }}. Relay addresses stop working immediately.</p>
+    <label>Type <code>{{ domain.name }}</code> to confirm<input type="text" name="confirm" required autocapitalize="off"></label>
+    <button class="danger">Remove domain</button>
+  </form>
+</details>
+{% endblock %}

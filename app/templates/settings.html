@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}Settings · {{ settings.app_name }}{% endblock %}
+{% block wrapclass %}narrow{% endblock %}
+{% block content %}
+<h1>Settings</h1>
+<form class="card stack" method="post" action="/settings/profile">
+  <input type="hidden" name="csrf" value="{{ csrf }}">
+  <label>Gmail address <span class="hint">(contact support to change it)</span><input type="email" value="{{ user.email }}" disabled></label>
+  <label>Name<input type="text" name="name" value="{{ user.name }}"></label>
+  <button>Save</button>
+</form>
+<form class="card stack" method="post" action="/settings/password">
+  <input type="hidden" name="csrf" value="{{ csrf }}">
+  <strong>Change password</strong>
+  <label>Current password<input type="password" name="current" required autocomplete="current-password"></label>
+  <label>New password<input type="password" name="new" required minlength="10" autocomplete="new-password"></label>
+  <button>Change password</button>
+</form>
+<div class="card">
+  <strong>Your data</strong>
+  <p>Download everything we hold about your account as JSON.</p>
+  <a class="btn secondary" href="/settings/export">Export my data</a>
+</div>
+<details class="card">
+  <summary class="bad">Delete account</summary>
+  <form class="stack" method="post" action="/settings/delete" style="margin-top:.75rem" data-confirm="Delete your account permanently?">
+    <input type="hidden" name="csrf" value="{{ csrf }}">
+    <p>Cancels your subscription and permanently deletes your domains, addresses, contacts and logs. Mail to your domain will bounce until you change your MX records.</p>
+    <label>Password<input type="password" name="password" required autocomplete="current-password"></label>
+    <button class="danger">Delete everything</button>
+  </form>
+</details>
+{% endblock %}

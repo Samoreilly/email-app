@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+{% block title %}{{ settings.app_name }}: keep "Send as" your own domain in Gmail after January 2027{% endblock %}
+{% block content %}
+<section class="hero">
+  <span class="badge">Gmail drops "Send as" for outside addresses in January 2027</span>
+  <h1>Keep replying from you@yourdomain.com, right inside Gmail.</h1>
+  <p class="lead">Google is removing "Send as" for non-Google addresses, along with Gmailify and POP fetching. {{ settings.app_name }} keeps your custom-domain email working in the Gmail app on your phone and on desktop. You don't need a new inbox or a new app.</p>
+  <div class="row">
+    {% if settings.signups_open %}
+      <a class="btn" href="/signup">Start your {{ settings.trial_days }}-day free trial</a>
+      <a class="btn secondary" href="#how">How it works</a>
+    {% else %}
+      <a class="btn" href="#waitlist">Join the waitlist</a>
+    {% endif %}
+  </div>
+  <p class="hint" style="margin-top:.75rem">No card needed for the trial. {{ settings.price_display }} per domain per {{ settings.price_interval_display }} after that. Hosted in the EU.</p>
+</section>
+
+<section id="how">
+  <h2>How it works</h2>
+  <div class="flow">
+    <div class="card"><strong>1. Point your domain at us</strong>Add a few DNS records. Our setup wizard checks each one live, and if your domain is on Cloudflare it can add them for you.</div>
+    <div class="card"><strong>2. Mail arrives in Gmail</strong>Mail to you@yourdomain.com lands in your normal Gmail inbox. Each sender's name and address are shown, just as before.</div>
+    <div class="card"><strong>3. Hit Reply, anywhere</strong>Reply from the Gmail app on Android or iPhone, or on the web. The recipient sees it come from you@yourdomain.com, and your Gmail address is never shown.</div>
+  </div>
+  <p class="muted">Under the hood, each person who emails you gets a private relay address. Gmail replies to that address, and we verify the reply really came from your Gmail account (DKIM-signed by Google), then send it out as your domain, signed with your domain's own DKIM key. Threads stay intact on both sides.</p>
+</section>
+
+<section>
+  <h2>Why not just…</h2>
+  <div class="table-wrap">
+  <table class="compare">
+    <tr><th></th><th>Works in the Gmail phone app</th><th>Keep using Gmail</th><th>Typical price</th></tr>
+    <tr><td>{{ settings.app_name }}</td><td class="ok">Yes</td><td class="ok">Yes</td><td>{{ settings.price_display }}/{{ settings.price_interval_display }} per domain</td></tr>
+    <tr><td>Desktop browser extensions</td><td class="bad">Not yet</td><td class="ok">Yes</td><td>Varies</td></tr>
+    <tr><td>Switching to another mail provider</td><td class="bad">Their app instead</td><td class="bad">No</td><td>$0–$70/yr</td></tr>
+    <tr><td>Google Workspace</td><td class="ok">Yes</td><td class="ok">A new Workspace inbox</td><td>~$84/user/yr</td></tr>
+  </table>
+  </div>
+</section>
+
+<section id="pricing">
+  <h2>Pricing</h2>
+  <div class="grid">
+    <div class="card">
+      <div class="price">{{ settings.price_display }}<span class="muted" style="font-size:1rem;font-weight:400"> / domain / {{ settings.price_interval_display }}</span></div>
+      <ul>
+        <li>Unlimited addresses on your domain (you@, hello@, invoices@…)</li>
+        <li>Reply and compose from Gmail on phone and desktop</li>
+        <li>Guided DNS setup with a live checker</li>
+        <li>{{ settings.trial_days }}-day free trial, no card required</li>
+        <li>Cancel any time from your billing page</li>
+      </ul>
+      {% if settings.signups_open %}<a class="btn" href="/signup">Start free trial</a>{% else %}<a class="btn" href="#waitlist">Join the waitlist</a>{% endif %}
+    </div>
+    <div class="card">
+      <h3 style="margin-top:0">Built for small businesses</h3>
+      <p>Freelancers, consultants, shops and clubs that forward a domain into Gmail with Cloudflare Email Routing, ImprovMX or their registrar, and reply with "Send as".</p>
+      <p class="muted">For personal relaying only: bulk and cold email isn't allowed.</p>
+    </div>
+  </div>
+</section>
+
+<section id="waitlist" class="narrow">
+  <h2>{{ 'Get launch updates' if settings.signups_open else 'Join the waitlist' }}</h2>
+  <p>Tell us how you're set up today and we'll email you when it's your turn{{ ', plus a reminder before January 2027' if settings.signups_open }}.</p>
+  <form class="card stack" method="post" action="/waitlist">
+    <input type="hidden" name="csrf" value="{{ csrf }}">
+    <label>Email<input type="email" name="email" required autocomplete="email" placeholder="you@gmail.com"></label>
+    <label>How do you use your domain with Gmail today?
+      <select name="current_setup">
+        <option value="">Choose…</option>
+        {% for key, label in setups.items() %}<option value="{{ key }}">{{ label }}</option>{% endfor %}
+      </select>
+    </label>
+    <label>How many domains?
+      <select name="domain_count"><option value="1">1</option><option value="2-3">2–3</option><option value="4+">4 or more</option></select>
+    </label>
+    <label class="hp" aria-hidden="true">Leave empty<input type="text" name="website" tabindex="-1" autocomplete="off"></label>
+    <label class="check"><input type="checkbox" name="consent" value="1" required> <span>Email me about {{ settings.app_name }}'s launch. I can unsubscribe any time. <a href="/privacy">Privacy policy</a>.</span></label>
+    <button type="submit">Join</button>
+  </form>
+</section>
+
+<section class="narrow">
+  <h2>Questions</h2>
+  <details><summary>What exactly is Google changing?</summary><p>From January 2027 Gmail removes "Send as" for third-party addresses on the web and in the mobile apps, and stops Gmailify and POP fetching. Forwarding mail <em>into</em> Gmail still works, so receiving is fine, but you can no longer reply as your own domain. Google's announcement: <a href="https://support.google.com/mail/answer/17101213" rel="noopener">support.google.com/mail/answer/17101213</a>.</p></details>
+  <details><summary>Will people see my Gmail address?</summary><p>No. We remove the headers that would reveal it, replace the Message-IDs Gmail generates, and swap addresses in the quoted text. Recipients only see you@yourdomain.com.</p></details>
+  <details><summary>How do I start a brand-new email (not a reply)?</summary><p>Use the Compose page (it works on your phone), or add a contact in the dashboard. That gives you a relay address to email from Gmail, and you can save it in your phone's contacts.</p></details>
+  <details><summary>Do you store my email?</summary><p>No. Messages pass through in transit and are never written to disk. We keep only routing metadata (who wrote to which of your addresses, and when) to make replies and threading work. See our <a href="/privacy">privacy policy</a>.</p></details>
+  <details><summary>Can I use it with @yahoo.com or @outlook.com addresses?</summary><p>No. Sending as an address properly needs control over that domain's DNS, so {{ settings.app_name }} works with custom domains you own.</p></details>
+  <details><summary>What happens if I stop paying?</summary><p>Replies pause straight away. Incoming mail keeps forwarding for {{ settings.inbound_grace_days }} more days so nothing gets lost while you sort things out.</p></details>
+</section>
+{% endblock %}

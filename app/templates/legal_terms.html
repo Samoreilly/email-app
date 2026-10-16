@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}Terms of service · {{ settings.app_name }}{% endblock %}
+{% block wrapclass %}narrow legal{% endblock %}
+{% block content %}
+<h1>Terms of service</h1>
+<p class="hint">Last updated: 16 October 2026</p>
+<p>These terms are an agreement between you and {{ settings.company_name }} ({{ settings.company_address }}) for use of {{ settings.app_name }}.</p>
+
+<h2>1. The service</h2>
+<p>{{ settings.app_name }} forwards email sent to domains you own to your Gmail address, and relays your replies so they're sent from your domain. You must own or be authorised to manage every domain you add.</p>
+
+<h2>2. Acceptable use</h2>
+<p>The service is for personal and business correspondence. You must not use it to:</p>
+<ul>
+  <li>send bulk, marketing, cold or unsolicited email, or email to purchased or scraped lists;</li>
+  <li>send spam, phishing, malware, or anything illegal, or impersonate others;</li>
+  <li>get around our sending limits, or relay mail on behalf of third parties.</li>
+</ul>
+<p>We apply sending limits and may suspend accounts that cause bounces, spam complaints, or abuse reports, or that harm our sending reputation. Where we can, we'll warn you first.</p>
+
+<h2>3. Trial, payment and cancellation</h2>
+<p>New accounts get a {{ settings.trial_days }}-day free trial without a card. After that the service costs {{ settings.price_display }} per domain per {{ settings.price_interval_display }} (plus VAT where applicable), billed in advance through Stripe and renewed automatically until you cancel. You can cancel any time from the billing page; the service keeps running until the end of the paid period. If you're a consumer in the EU, you have a 14-day right of withdrawal from the first paid subscription; by starting a paid subscription you ask us to begin providing the service immediately. Adding domains adjusts your subscription pro-rata.</p>
+<p>When your plan ends, replies stop. Incoming mail keeps being forwarded for {{ settings.inbound_grace_days }} days, then is rejected.</p>
+
+<h2>4. Availability and deliverability</h2>
+<p>We work hard to deliver every message, but email delivery depends on other providers (including Google), so we can't guarantee that every message is delivered or never marked as spam. Keep your DNS records as shown in the dashboard. Changing them can stop the service from working.</p>
+
+<h2>5. Your data</h2>
+<p>Our <a href="/privacy">privacy policy</a> and <a href="/dpa">Data Processing Agreement</a> form part of these terms. We don't store message content.</p>
+
+<h2>6. Liability</h2>
+<p>To the extent permitted by law, our total liability is limited to the amount you paid us in the 12 months before the claim, and we aren't liable for indirect or consequential loss, including lost business from undelivered email. Nothing in these terms limits liability that can't be limited by law, or your statutory rights as a consumer.</p>
+
+<h2>7. Changes and termination</h2>
+<p>We may update these terms and will notify you by email at least 30 days before material changes take effect. You can delete your account at any time. These terms are governed by the laws of Ireland.</p>
+
+<p>Contact: <a href="mailto:{{ settings.support_email }}">{{ settings.support_email }}</a></p>
+{% endblock %}

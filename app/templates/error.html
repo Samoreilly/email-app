@@ -1,0 +1,8 @@
+{% extends "base.html" %}
+{% block title %}Error {{ code }} · {{ settings.app_name }}{% endblock %}
+{% block wrapclass %}narrow{% endblock %}
+{% block content %}
+<h1>{% if code == 404 %}Page not found{% else %}Something went wrong{% endif %}</h1>
+<p>{% if code != 404 %}{{ detail }}{% else %}We couldn't find that page.{% endif %}</p>
+<p><a href="{{ '/dashboard' if user else '/' }}">Go back</a></p>
+{% endblock %}

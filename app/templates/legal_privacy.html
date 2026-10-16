@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block title %}Privacy policy · {{ settings.app_name }}{% endblock %}
+{% block wrapclass %}narrow legal{% endblock %}
+{% block content %}
+<h1>Privacy policy</h1>
+<p class="hint">Last updated: 16 October 2026</p>
+<p>{{ settings.company_name }} ({{ settings.company_address }}) runs {{ settings.app_name }}. This policy explains what personal data we process, why, and your rights under the EU General Data Protection Regulation (GDPR). Questions: <a href="mailto:{{ settings.support_email }}">{{ settings.support_email }}</a>.</p>
+
+<h2>What {{ settings.app_name }} does</h2>
+<p>We receive email sent to your domain, forward it to your Gmail address, and send your replies out as your domain. For mail passing through the service, you (our customer) are the controller and we act as your processor; see our <a href="/dpa">Data Processing Agreement</a>. For your account and billing data, we are the controller.</p>
+
+<h2>Data we process</h2>
+<ul>
+  <li><strong>Account data</strong>: your Gmail address, name, password (stored only as a salted hash) and sign-up date. Used to provide the service (contract, Art. 6(1)(b)).</li>
+  <li><strong>Domain configuration</strong>: your domains, addresses, display names and the DKIM keys we generate for you. Private keys are encrypted at rest.</li>
+  <li><strong>Contacts</strong>: the email addresses and display names of people who write to you or whom you write to, and the relay address assigned to each. Needed to route replies (contract / legitimate interest of you and your correspondents, Art. 6(1)(b) and (f)).</li>
+  <li><strong>Message metadata</strong>: delivery log entries (time, direction, addresses, delivery status, size) kept for 30 days, and Message-ID mappings kept for up to 2 years so that email threads stay together. Used for routing, troubleshooting and abuse prevention.</li>
+  <li><strong>Message content</strong>: email bodies, attachments and subjects are processed only in memory while being relayed. <strong>We do not store them.</strong> If delivery fails temporarily, the sending server keeps the message and retries, not us.</li>
+  <li><strong>Billing data</strong>: handled by Stripe. We store your Stripe customer and subscription IDs and subscription status, but never your card details. Invoices are kept as required by Irish tax law (Art. 6(1)(c)).</li>
+  <li><strong>Waitlist</strong>: your email, how you use your domain today, and how many domains you have, with your consent (Art. 6(1)(a)). Unconfirmed entries are deleted after 30 days. You can withdraw consent any time via the link in our emails.</li>
+  <li><strong>Security logs</strong>: IP addresses of web requests and of servers connecting to our mail servers, kept briefly in server logs to prevent abuse (legitimate interest, Art. 6(1)(f)).</li>
+</ul>
+<p>We use a single, strictly necessary session cookie to keep you logged in. No advertising or tracking cookies.</p>
+
+<h2>Where data is stored and who we share it with</h2>
+<p>Our servers are in the EU. We use these sub-processors:</p>
+<ul>
+  <li>{{ settings.hosting_provider }}: server hosting.</li>
+  <li>Stripe Payments Europe, Ltd. (Ireland): payment processing.</li>
+  {% if settings.outbound_provider %}<li>{{ settings.outbound_provider }}: outbound email delivery.</li>{% endif %}
+</ul>
+<p>Email we relay is, by its nature, delivered to the recipients' mail providers (including Google for your Gmail inbox), which may be outside the EU. We never sell personal data and never use message content for any purpose other than delivering it.</p>
+
+<h2>Retention</h2>
+<p>Account data is kept while your account exists. When you delete your account, we delete your domains, addresses, contacts, logs and Message-ID mappings immediately; backups roll over within 30 days. Billing records are kept for 6 years as required by law.</p>
+
+<h2>Your rights</h2>
+<p>You can access, correct, export (Settings → Export my data) and delete (Settings → Delete account) your data, object to processing, and withdraw consent. If someone who emails our customers wants to exercise their rights, they should contact the customer, and we will help the customer respond. You also have the right to complain to the Irish Data Protection Commission (<a href="https://www.dataprotection.ie">dataprotection.ie</a>).</p>
+
+<h2>Security</h2>
+<p>We use TLS for the website and opportunistic TLS for mail transport, hash passwords with Argon2, encrypt DKIM keys at rest, and check every reply cryptographically (DKIM) before sending it, so nobody else can send as your domain through us.</p>
+
+<h2>Changes</h2>
+<p>We'll email account holders before making material changes to this policy.</p>
+{% endblock %}

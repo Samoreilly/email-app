@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}Choose a new password · {{ settings.app_name }}{% endblock %}
+{% block wrapclass %}narrow{% endblock %}
+{% block content %}
+<h1>Choose a new password</h1>
+{% include "_errors.html" %}
+<form class="card stack" method="post" action="/reset/{{ token }}">
+  <input type="hidden" name="csrf" value="{{ csrf }}">
+  <label>New password <span class="hint">(at least 10 characters)</span><input type="password" name="password" required minlength="10" autocomplete="new-password"></label>
+  <button type="submit">Save password</button>
+</form>
+{% endblock %}

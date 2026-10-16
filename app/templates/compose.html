@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}Compose · {{ settings.app_name }}{% endblock %}
+{% block wrapclass %}narrow{% endblock %}
+{% block content %}
+<h1>New email</h1>
+<p class="muted">Sent from your domain. A copy lands in your Gmail, and replies arrive there too, ready to answer from the Gmail app.</p>
+{% include "_errors.html" %}
+{% if addresses %}
+<form class="card stack" method="post" action="/compose">
+  <input type="hidden" name="csrf" value="{{ csrf }}">
+  <label>From<select name="address_id">{% for a in addresses %}<option value="{{ a.id }}">{{ a.display_name + ' <' + a.email + '>' if a.display_name else a.email }}</option>{% endfor %}</select></label>
+  <label>To<input type="text" name="to" required value="{{ to or '' }}" placeholder="client@example.com" autocapitalize="off" inputmode="email"></label>
+  <label>Subject<input type="text" name="subject" required value="{{ subject or '' }}"></label>
+  <label>Message<textarea name="body" required>{{ body or '' }}</textarea></label>
+  <button type="submit">Send</button>
+</form>
+{% else %}
+<div class="card">Add a domain and an address first. <a href="/domains/new">Add domain</a></div>
+{% endif %}
+{% endblock %}

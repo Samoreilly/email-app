@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block title %}Data Processing Agreement · {{ settings.app_name }}{% endblock %}
+{% block wrapclass %}narrow legal{% endblock %}
+{% block content %}
+<h1>Data Processing Agreement</h1>
+<p class="hint">Last updated: 16 October 2026 · Art. 28 GDPR</p>
+<p>This agreement applies when {{ settings.company_name }} ("Processor") processes personal data contained in email on behalf of a {{ settings.app_name }} customer ("Controller"). It forms part of the <a href="/terms">terms of service</a> and is accepted when you create an account.</p>
+
+<h2>1. Subject matter and duration</h2>
+<p>Relaying email between the Controller's domain addresses, the Controller's Gmail mailbox, and the Controller's correspondents, for as long as the Controller's account exists.</p>
+
+<h2>2. Nature and purpose</h2>
+<p>Receiving, rewriting the routing headers of, cryptographically signing, and delivering email messages; keeping minimal routing metadata to enable replies and threading.</p>
+
+<h2>3. Data and data subjects</h2>
+<p>Data subjects: the Controller's correspondents and the Controller's users. Data: email addresses, display names, Message-IDs, delivery timestamps and status, and message content <em>in transit only</em>.</p>
+
+<h2>4. Processor obligations</h2>
+<ul>
+  <li>Process personal data only on the Controller's documented instructions, which are: relay mail as configured in the dashboard.</li>
+  <li>Make sure staff with access are bound by confidentiality.</li>
+  <li>Implement appropriate technical and organisational measures (Art. 32), including encryption in transit, encryption of signing keys at rest, access control, not storing message content, and data minimisation.</li>
+  <li>Engage sub-processors only as listed in the <a href="/privacy">privacy policy</a>, and give 30 days' notice of changes, during which the Controller may object and terminate.</li>
+  <li>Help the Controller respond to data subject requests and meet its Art. 32–36 obligations.</li>
+  <li>Notify the Controller without undue delay, and within 48 hours where possible, after becoming aware of a personal data breach.</li>
+  <li>Delete all personal data at the end of the service (account deletion), except where EU or Member State law requires it to be kept.</li>
+  <li>Make available the information needed to show compliance, and allow and contribute to reasonable audits.</li>
+</ul>
+
+<h2>5. International transfers</h2>
+<p>Processing takes place in the EU. Email addressed to recipients outside the EU is necessarily delivered to their providers at the Controller's instruction.</p>
+
+<p>Contact: <a href="mailto:{{ settings.support_email }}">{{ settings.support_email }}</a></p>
+{% endblock %}

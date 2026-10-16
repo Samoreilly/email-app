@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block title %}Overview · {{ settings.app_name }}{% endblock %}
+{% block content %}
+<div class="row spread"><h1 style="margin:0">Hi{{ ' ' + user.name if user.name }}</h1>
+  <span class="pill {{ 'ok' if user.plan_active }}">{% if user.subscribed %}Subscribed{% elif user.in_trial %}Trial: {{ user.trial_days_left }} days left{% else %}Plan inactive{% endif %}</span></div>
+<p class="muted">Mail to your addresses is delivered to <strong>{{ user.email }}</strong>.</p>
+
+{% set done = steps|selectattr(1)|list|length %}
+{% if done < steps|length %}
+<div class="card">
+  <h2 style="margin-top:0">Get set up ({{ done }}/{{ steps|length }})</h2>
+  <ol class="steps">
+  {% for label, ok, link in steps %}
+    <li><span class="mark {{ 'ok' if ok else 'muted' }}">{{ '✓' if ok else loop.index }}</span>
+      <span>{% if link and not ok %}<a href="{{ link }}">{{ label }}</a>{% else %}{{ label }}{% endif %}</span></li>
+  {% endfor %}
+  </ol>
+</div>
+{% endif %}
+
+<h2>Domains</h2>
+{% for d in user.domains %}
+  <div class="card row spread">
+    <div><a href="/domains/{{ d.id }}"><strong>{{ d.name }}</strong></a><br>
+      <span class="hint">{{ d.addresses|length }} address{{ 'es' if d.addresses|length != 1 }}{% if d.catch_all %} + catch-all{% endif %}</span></div>
+    <div class="row">
+      <span class="pill {{ 'ok' if d.verified_at and d.mx_ok }}">Receiving {{ 'on' if d.verified_at and d.mx_ok else 'not set up' }}</span>
+      <span class="pill {{ 'ok' if d.sending_ready }}">Sending {{ 'on' if d.sending_ready else 'not set up' }}</span>
+    </div>
+  </div>
+{% else %}
+  <div class="card"><p>No domains yet.</p><a class="btn" href="/domains/new">Add your domain</a></div>
+{% endfor %}
+{% if user.domains and user.domains|length < user.max_domains %}<p><a href="/domains/new">+ Add another domain</a></p>
+{% elif user.domains %}<p class="hint">Want another domain? {% if not user.subscribed %}<a href="/billing">Subscribe</a> to add more.{% endif %}</p>{% endif %}
+
+<div class="grid">
+  <div class="card">
+    <h3 style="margin-top:0">How to reply</h3>
+    <p>Just hit <strong>Reply</strong> in Gmail, in the app or on the web. Leave the From line on your Gmail address; we send it as your domain.</p>
+    <h3>How to start a new email</h3>
+    <p><a href="/compose">Compose here</a>, or <a href="/contacts">add a contact</a> to get a relay address you can email from Gmail.</p>
+  </div>
+  <div class="card">
+    <h3 style="margin-top:0">Recent activity</h3>
+    {% for r in recent %}
+      <div class="row spread" style="border-bottom:1px solid var(--border);padding:.3rem 0"><span class="hint">{{ {'in':'↓ In','out':'↑ Reply','compose':'↑ New'}[r.direction] }} {{ r.contact or r.address }}</span><span class="pill {{ 'ok' if r.status == 'delivered' else ('bad' if r.status in ('rejected','bounced','complaint') else '') }}">{{ r.status }}</span></div>
+    {% else %}<p class="muted">Nothing yet.</p>{% endfor %}
+    <p class="hint" style="margin-top:.75rem">Sent in the last 24h: {{ sent_today }} / {{ limit }}. <a href="/log">Full log</a></p>
+  </div>
+</div>
+{% endblock %}

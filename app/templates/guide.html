@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}Gmail "Send as" is going away in 2027: your options for custom-domain email{% endblock %}
+{% block description %}Google removes Send as for non-Google addresses in January 2027. Here's what still works, what breaks, and how to keep replying from your own domain in Gmail on your phone.{% endblock %}
+{% block wrapclass %}narrow legal{% endblock %}
+{% block content %}
+<h1>Gmail "Send as" is going away: how to keep replying from your own domain</h1>
+<p class="hint">Updated October 2026</p>
+<p>For years the standard free setup for custom-domain email has been: forward <code>you@yourdomain.com</code> into Gmail (with Cloudflare Email Routing, ImprovMX, or your registrar), then add the address under <em>Settings → Accounts → Send mail as</em> so you can reply from it. That second half stops working.</p>
+
+<h2>What's changing</h2>
+<ul>
+  <li><strong>January 2027:</strong> Gmail removes "Send as" for third-party (non-Google) addresses on the web and in the mobile apps.</li>
+  <li>Gmailify and POP fetching ("Check mail from other accounts") are removed at the same time.</li>
+  <li>Google calls Q3–Q4 2026 a transition period and may already block <em>new</em> Send-as setups.</li>
+  <li><strong>Still works:</strong> forwarding mail into Gmail, Gmail-to-Gmail aliases, and Google Workspace aliases.</li>
+</ul>
+<p>Source: <a href="https://support.google.com/mail/answer/17101213" rel="noopener">Gmail Help</a>.</p>
+
+<h2>Your options</h2>
+<h3>1. Pay for Google Workspace</h3>
+<p>Workspace aliases keep working. It's about $7 per user per month, and you get a separate Workspace mailbox rather than your existing personal Gmail.</p>
+<h3>2. Move to another mail provider</h3>
+<p>Zoho Mail (free tier), Migadu, Fastmail and Proton all host custom domains. You'd read and send in their apps instead of Gmail.</p>
+<h3>3. Use a desktop mail client</h3>
+<p>Thunderbird or Apple Mail can send through your forwarding service's SMTP server. This works on a computer, but not inside the Gmail app on your phone.</p>
+<h3>4. Use a relay that works with Gmail's own Reply button</h3>
+<p>This is what {{ settings.app_name }} does. Your domain's mail arrives in Gmail from a private relay address for each sender. When you hit Reply in any Gmail app, the reply goes to us, we check it really came from your Gmail account, and we send it out from <code>you@yourdomain.com</code>, signed with your domain's DKIM key. You keep Gmail, keep your phone app, and your Gmail address stays hidden.</p>
+
+<h2>Switching from Cloudflare Email Routing or ImprovMX</h2>
+<ol>
+  <li>Sign up and add your domain.</li>
+  <li>Replace your MX records with ours. (On Cloudflare, disable Email Routing first. Our one-click setup handles the rest.)</li>
+  <li>Add our SPF include, your DKIM record and a DMARC record. The dashboard checks each one live.</li>
+  <li>Remove the old "Send mail as" entry from Gmail. Reply normally from now on.</li>
+</ol>
+<p><a class="btn" href="{{ '/signup' if settings.signups_open else '/#waitlist' }}">Try {{ settings.app_name }} free for {{ settings.trial_days }} days</a></p>
+{% endblock %}

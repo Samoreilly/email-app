@@ -20,6 +20,9 @@ class Settings(BaseSettings):
     # Who runs the service (shown in privacy policy / DPA).
     company_name: str = "ReplyAs"
     company_address: str = "Dublin, Ireland"
+    # Listed as sub-processors in the privacy policy and DPA.
+    hosting_provider: str = "Hetzner Online GmbH (Germany, EU)"
+    outbound_provider: str = ""  # e.g. a smarthost company, if outbound_mode=smtp
     # While False the landing page only offers the waitlist.
     signups_open: bool = True
     admin_emails: str = ""  # comma separated

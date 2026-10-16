@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}{{ settings.app_name }}{% endblock %}</title>
+  <meta name="description" content="{% block description %}Keep replying from you@yourdomain.com inside Gmail on your phone and desktop after Google removes Send as in January 2027.{% endblock %}">
+  <link rel="stylesheet" href="/static/style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>↩</text></svg>">
+  <script src="/static/app.js" defer></script>
+</head>
+<body>
+<header class="site">
+  <div class="wrap">
+    <a class="brand" href="{{ '/dashboard' if user else '/' }}">{{ settings.app_name }}</a>
+    <nav class="main">
+      {% if user %}
+        {% set p = request.url.path %}
+        <a href="/dashboard" class="{{ 'active' if p == '/dashboard' }}">Overview</a>
+        <a href="/contacts" class="{{ 'active' if p.startswith('/contacts') }}">Contacts</a>
+        <a href="/compose" class="{{ 'active' if p.startswith('/compose') }}">Compose</a>
+        <a href="/log" class="{{ 'active' if p == '/log' }}">Log</a>
+        <a href="/billing" class="{{ 'active' if p.startswith('/billing') }}">Billing</a>
+        <a href="/settings" class="{{ 'active' if p.startswith('/settings') }}">Settings</a>
+        {% if user.is_admin %}<a href="/admin">Admin</a>{% endif %}
+        <form method="post" action="/logout" style="display:inline"><input type="hidden" name="csrf" value="{{ csrf }}"><button class="linklike small" style="padding:.4rem .6rem">Log out</button></form>
+      {% else %}
+        <a href="/#how">How it works</a>
+        <a href="/#pricing">Pricing</a>
+        <a href="/login">Log in</a>
+        {% if settings.signups_open %}<a class="btn small" href="/signup" style="color:var(--accent-ink)">Start free trial</a>{% endif %}
+      {% endif %}
+    </nav>
+  </div>
+</header>
+<main>
+  <div class="wrap {% block wrapclass %}{% endblock %}">
+    {% if user and not user.email_verified_at %}
+      <div class="flash error">Confirm your Gmail address to start forwarding: check your inbox for our link.
+        <form method="post" action="/resend-verification" style="display:inline"><input type="hidden" name="csrf" value="{{ csrf }}"><button class="linklike">Resend it</button></form>
+      </div>
+    {% elif user and user.suspended %}
+      <div class="flash error">Your account is suspended{% if user.suspended_reason %}: {{ user.suspended_reason }}{% endif %}. Contact {{ settings.support_email }}.</div>
+    {% elif user and not user.plan_active %}
+      <div class="flash error">Your free trial has ended, so replies are paused. <a href="/billing">Subscribe to keep sending</a>.</div>
+    {% endif %}
+    {% for kind, message in flashes %}<div class="flash {{ kind }}">{{ message }}</div>{% endfor %}
+    {% block content %}{% endblock %}
+  </div>
+</main>
+<footer class="site">
+  <div class="wrap">
+    <p>&copy; {{ settings.company_name }} · Hosted in the EU ·
+      <a href="/privacy">Privacy</a><a href="/terms">Terms</a><a href="/dpa">DPA</a><a href="mailto:{{ settings.support_email }}">Support</a></p>
+    <p class="muted">Not affiliated with Google. Gmail is a trademark of Google LLC.</p>
+  </div>
+</footer>
+</body>
+</html>

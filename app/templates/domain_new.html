@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}Add a domain · {{ settings.app_name }}{% endblock %}
+{% block wrapclass %}narrow{% endblock %}
+{% block content %}
+<h1>Add your domain</h1>
+{% include "_errors.html" %}
+<form class="card stack" method="post" action="/domains">
+  <input type="hidden" name="csrf" value="{{ csrf }}">
+  <label>Domain <span class="hint">(the part after the @, e.g. yourbusiness.com)</span><input type="text" name="name" required value="{{ name or '' }}" placeholder="yourbusiness.com" autocapitalize="off" autocorrect="off"></label>
+  <label>Your first address <span class="hint">(optional; you can add more later)</span>
+    <div class="row" style="flex-wrap:nowrap"><input type="text" name="local_part" value="{{ local_part or '' }}" placeholder="you" autocapitalize="off" style="max-width:200px"><span class="muted">@ your domain</span></div></label>
+  <button type="submit">Continue to DNS setup</button>
+</form>
+<p class="hint">You'll need access to your domain's DNS settings (at your registrar, or at Cloudflare).</p>
+{% endblock %}
