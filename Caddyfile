@@ -1,0 +1,9 @@
+{$APP_HOST} {
+	encode gzip
+	reverse_proxy web:8000
+}
+
+# Only here so Caddy obtains a TLS certificate for the mail server (STARTTLS).
+{$MX_HOST} {
+	redir https://{$APP_HOST}{uri}
+}

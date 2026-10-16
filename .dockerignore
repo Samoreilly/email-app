@@ -1,0 +1,7 @@
+.venv
+var
+.env
+.git
+tests
+__pycache__
+CLAUDE.md

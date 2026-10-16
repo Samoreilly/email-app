@@ -1,0 +1,54 @@
+services:
+  db:
+    image: postgres:17
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: app
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}
+      POSTGRES_DB: app
+    volumes: [pgdata:/var/lib/postgresql/data]
+
+  web:
+    build: .
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      DATABASE_URL: postgresql+psycopg://app:${POSTGRES_PASSWORD}@db/app
+    volumes: [appdata:/srv/var]
+    depends_on: [db]
+
+  smtp:
+    build: .
+    restart: unless-stopped
+    command: ["python", "-m", "app.relay.server"]
+    # Root only so it can read Caddy's TLS key (0600, owned by root).
+    user: "0"
+    env_file: .env
+    environment:
+      DATABASE_URL: postgresql+psycopg://app:${POSTGRES_PASSWORD}@db/app
+      SMTP_LISTEN_PORT: "2525"
+      # Caddy obtains and renews the certificate for MX_HOST (see Caddyfile).
+      SMTP_TLS_CERT: /caddy/caddy/certificates/acme-v02.api.letsencrypt.org-directory/${MX_HOST}/${MX_HOST}.crt
+      SMTP_TLS_KEY: /caddy/caddy/certificates/acme-v02.api.letsencrypt.org-directory/${MX_HOST}/${MX_HOST}.key
+    ports: ["25:2525"]
+    volumes:
+      - appdata:/srv/var
+      - caddydata:/caddy:ro
+    depends_on: [db]
+
+  caddy:
+    image: caddy:2
+    restart: unless-stopped
+    ports: ["80:80", "443:443"]
+    environment:
+      APP_HOST: ${APP_HOST:?set APP_HOST in .env}
+      MX_HOST: ${MX_HOST:?set MX_HOST in .env}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddydata:/data
+    depends_on: [web]
+
+volumes:
+  pgdata:
+  appdata:
+  caddydata:

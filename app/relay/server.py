@@ -62,13 +62,21 @@ class RelayHandler:
         return outcome.smtp
 
 
+_tls_cache: dict = {}
+
+
 def _tls_context() -> ssl.SSLContext | None:
+    """STARTTLS context, reloaded when the certificate file changes (Caddy
+    renews it automatically). Without a certificate we run plaintext only."""
     s = get_settings()
-    if not (s.smtp_tls_cert and s.smtp_tls_key):
+    if not (s.smtp_tls_cert and s.smtp_tls_key and s.smtp_tls_cert.exists() and s.smtp_tls_key.exists()):
         return None
-    ctx = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
-    ctx.load_cert_chain(s.smtp_tls_cert, s.smtp_tls_key)
-    return ctx
+    mtime = s.smtp_tls_cert.stat().st_mtime
+    if _tls_cache.get("mtime") != mtime:
+        ctx = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
+        ctx.load_cert_chain(s.smtp_tls_cert, s.smtp_tls_key)
+        _tls_cache.update(mtime=mtime, ctx=ctx)
+    return _tls_cache["ctx"]
 
 
 class RelayController(Controller):
